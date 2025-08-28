@@ -1,9 +1,8 @@
-
 'use server';
 /**
- * @fileOverview Generates an architecture diagram image based on a system description.
+ * @fileOverview Generates a Mermaid syntax diagram for a system architecture.
  *
- * - generateArchitectureDiagram - A function that creates a diagram image.
+ * - generateArchitectureDiagram - A function that creates a Mermaid diagram script.
  * - GenerateArchitectureDiagramInput - The input type for the function.
  * - GenerateArchitectureDiagramOutput - The return type for the function.
  */
@@ -17,7 +16,7 @@ const GenerateArchitectureDiagramInputSchema = z.object({
 export type GenerateArchitectureDiagramInput = z.infer<typeof GenerateArchitectureDiagramInputSchema>;
 
 const GenerateArchitectureDiagramOutputSchema = z.object({
-  diagramDataUri: z.string().describe("A diagram of the architecture, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
+  mermaidCode: z.string().describe("A Mermaid.js syntax script representing the architecture diagram. Must be enclosed in a ```mermaid ... ``` code block."),
 });
 export type GenerateArchitectureDiagramOutput = z.infer<typeof GenerateArchitectureDiagramOutputSchema>;
 
@@ -26,40 +25,53 @@ export async function generateArchitectureDiagram(input: GenerateArchitectureDia
   return generateArchitectureDiagramFlow(input);
 }
 
+const prompt = ai.definePrompt({
+    name: 'generateArchitectureDiagramPrompt',
+    input: { schema: GenerateArchitectureDiagramInputSchema },
+    output: { schema: GenerateArchitectureDiagramOutputSchema },
+    prompt: `You are an expert in system architecture and the Mermaid diagramming syntax. Your task is to convert a system description into a simplified Mermaid script.
+
+    **System Description:**
+    {{{architectureDescription}}}
+    
+    **Instructions:**
+    1.  Generate a \`graph TD\` (Top-Down) diagram.
+    2.  Keep the syntax simple. Use node IDs and text labels (e.g., \`A[Agent]\`).
+    3.  Use simple arrow connectors like \`-->\` for interactions.
+    4.  **Crucially, DO NOT use parentheses, brackets, or any other special characters in node text labels.** For example, use 'Agent A' NOT 'Agent A (Observer)'. This is to avoid rendering errors.
+    5.  Represent the key components (agents, services, databases) and their relationships.
+    6.  The final output must be ONLY the Mermaid code, enclosed in a Markdown code block like this:
+    \`\`\`mermaid
+    graph TD;
+        Node1[Label One] --> Node2[Label Two];
+    \`\`\`
+    `,
+});
+
 const generateArchitectureDiagramFlow = ai.defineFlow(
   {
     name: 'generateArchitectureDiagramFlow',
     inputSchema: GenerateArchitectureDiagramInputSchema,
     outputSchema: GenerateArchitectureDiagramOutputSchema,
   },
-  async ({ architectureDescription }) => {
-    const prompt = `Generate a clear, professional architecture diagram for the following multi-agent system.
-    
-- The diagram should be visually clean and easy to understand.
-- Use standard diagramming symbols (e.g., boxes for components, arrows for data flow).
-- Clearly label all agents, services, data stores, and external systems.
-- Illustrate the key interactions and communication paths (e.g., A2A, MCP).
-- Output format should be a 16:9 aspect ratio image.
-    
-System Description:
-${architectureDescription}`;
-
+  async (input) => {
     try {
-      const { media } = await ai.generate({
-          model: 'googleai/imagen-4.0-fast-generate-001',
-          prompt: prompt,
-      });
-
-      if (!media?.url) {
-          throw new Error('Image generation failed to return a data URI.');
-      }
+        const { output } = await prompt(input);
         
-      return {
-          diagramDataUri: media.url
-      };
+        if (!output?.mermaidCode) {
+            throw new Error("AI did not return any Mermaid code.");
+        }
+
+        const mermaidCode = output.mermaidCode.replace(/```mermaid\n|```/g, '').trim();
+
+        return {
+            mermaidCode: mermaidCode
+        };
+
     } catch(e) {
-        console.error("Underlying image generation error:", e);
-        throw new Error(`Image generation failed: ${e instanceof Error ? e.message : String(e)}`);
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        console.error("Error in generateArchitectureDiagramFlow:", errorMessage);
+        throw new Error(`Failed to generate diagram script. Reason: ${errorMessage}`);
     }
   }
 );

@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import jsPDF from "jspdf";
+import mermaid from "mermaid";
 import {
   Sidebar,
   SidebarContent,
@@ -13,14 +14,15 @@ import {
 } from "@/components/ui/sidebar";
 import { LayerCard } from "@/components/layer-card";
 import { SidebarInputForm } from "@/components/sidebar-input-form";
-import { suggestThreat, recommendMitigation, getExecutiveSummary } from "@/app/actions";
+import { suggestThreat, recommendMitigation, getExecutiveSummary, getArchitectureDiagram } from "@/app/actions";
 import { MAESTRO_LAYERS } from "@/data/maestro";
 import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Terminal } from "lucide-react";
+import { Download, Terminal, ToyBrick } from "lucide-react";
 import { Spinner } from "@/components/icons";
+import { MermaidDiagram } from "@/components/mermaid-diagram";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -44,6 +46,10 @@ export default function Home() {
   const analysisCancelledRef = React.useRef(false);
   const [currentArchitecture, setCurrentArchitecture] = React.useState("");
   const [executiveSummary, setExecutiveSummary] = React.useState<string | null>(null);
+  const [mermaidCode, setMermaidCode] = React.useState<string>("");
+  const [isGeneratingDiagram, setIsGeneratingDiagram] = React.useState(false);
+  const diagramContainerRef = React.useRef<HTMLDivElement>(null);
+
 
   React.useEffect(() => {
     if (logsContainerRef.current) {
@@ -73,6 +79,7 @@ export default function Home() {
     setExecutiveSummary(null);
     setLogs([]);
     setLayers(INITIAL_LAYERS);
+    setMermaidCode("");
     addLog("Starting MAESTRO threat analysis...");
 
     let finalLayers: LayerData[] = [];
@@ -147,6 +154,26 @@ export default function Home() {
     }
     setIsAnalyzing(false);
   };
+
+  const handleGenerateDiagram = async () => {
+    if (!currentArchitecture) {
+      addLog("Please provide an architecture description first.");
+      return;
+    }
+    setIsGeneratingDiagram(true);
+    addLog("Generating architecture diagram...");
+    try {
+      const result = await getArchitectureDiagram(currentArchitecture);
+      setMermaidCode(result.mermaidCode);
+      addLog("Diagram generated successfully.");
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+      addLog(`Diagram generation failed: ${errorMessage}`);
+      console.error("Diagram Generation Error:", error);
+    } finally {
+      setIsGeneratingDiagram(false);
+    }
+  };
   
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
@@ -161,26 +188,22 @@ export default function Home() {
         let y = margin;
 
         const addText = (text: string, options: any = {}) => {
-            const { size = 10, style = 'normal', markdown = false, x = margin, align = 'left', color = 0 } = options;
+            const { size = 10, style = 'normal', x = margin, align = 'left', color = 0 } = options;
 
             doc.setFontSize(size);
             doc.setFont("helvetica", style);
             doc.setTextColor(color);
-
-            const plainText = markdown
-                ? text.toString().replace(/###\s/g, '').replace(/##\s/g, '').replace(/#\s/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/`/g, '')
-                : text;
-
-            const lines = doc.splitTextToSize(plainText, usableWidth - (x > margin ? (x - margin) : 0));
+            
+            const lines = doc.splitTextToSize(text, usableWidth - (x > margin ? (x - margin) : 0));
             
             lines.forEach((line: string) => {
                 const textHeight = doc.getTextDimensions(line).h;
-                 if (y + textHeight > pageHeight - margin) {
+                if (y + textHeight > pageHeight - margin) {
                     doc.addPage();
                     y = margin;
                 }
                 doc.text(line, x, y, { align: align || 'left' });
-                y += textHeight;
+                y += textHeight * 1.15; // Add line spacing
             });
         };
         
@@ -206,11 +229,52 @@ export default function Home() {
             y += 10;
         }
 
+        // --- ARCHITECTURE DIAGRAM ---
+        if (mermaidCode && diagramContainerRef.current) {
+          addLog("Adding diagram to PDF...");
+          y += 10;
+          if (y + 200 > pageHeight - margin) { // Check if space for diagram
+              doc.addPage();
+              y = margin;
+          }
+          addText("Architecture Diagram", { size: 16, style: "bold" });
+          y += 6;
+          
+          const svgElement = diagramContainerRef.current.querySelector('svg');
+          if (svgElement) {
+              const svgData = new XMLSerializer().serializeToString(svgElement);
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              const svgSize = svgElement.getBoundingClientRect();
+              canvas.width = svgSize.width * 2; // Increase resolution
+              canvas.height = svgSize.height * 2;
+              canvas.style.width = `${svgSize.width}px`;
+              canvas.style.height = `${svgSize.height}px`;
+              
+              const img = new Image();
+              img.src = "data:image/svg+xml;base64," + btoa(svgData);
+              
+              await new Promise<void>((resolve) => {
+                  img.onload = () => {
+                      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                      const imgData = canvas.toDataURL("image/png");
+                      const imgWidth = usableWidth * 0.8;
+                      const imgHeight = (img.height * imgWidth) / img.width;
+                      doc.addImage(imgData, "PNG", margin + (usableWidth * 0.1), y, imgWidth, imgHeight);
+                      y += imgHeight + 20;
+                      resolve();
+                  };
+              });
+          } else {
+              addLog("Could not find rendered SVG for diagram.");
+          }
+        }
+
         // --- EXECUTIVE SUMMARY ---
         addText("Executive Summary", { size: 16, style: "bold" });
         y+= 6;
         const summaryToUse = executiveSummary || MAESTRO_METHODOLOGY_SUMMARY;
-        addText(summaryToUse, { size: 10, markdown: true, color: 80 });
+        addText(summaryToUse.replace(/###\s|##\s|#\s|\*\*/g, ''), { size: 10, color: 80 });
         y += 16;
     
         // --- LAYER-BY-LAYER ANALYSIS ---
@@ -230,10 +294,10 @@ export default function Home() {
             if (layer.status === "pending" || layer.status === 'analyzing') {
                 addText("Pending AI investigation...", { size: 10, style: "italic", color: 150 });
             } else if (layer.status === 'error') {
-                addText("An error occurred during analysis.", { size: 10, style: "italic", color: [200, 0, 0] });
+                addText("An error occurred during analysis.", { size: 10, style: "italic", color: 200 });
             } else if (layer.threat && layer.mitigation) {
                 addText("Identified Threats", { size: 12, style: "bold" });
-                addText(layer.threat, { size: 10, markdown: true, color: 80 });
+                addText(layer.threat.replace(/###\s|##\s|#\s|\*\*/g, ''), { size: 10, color: 80 });
                 y += 8;
     
                 addText("Mitigation Strategy", { size: 12, style: "bold" });
@@ -312,7 +376,7 @@ export default function Home() {
           </div>
 
           <div className="mt-8 grid gap-6 grid-cols-1 lg:grid-cols-12">
-            <div className="lg:col-span-12">
+            <div className="lg:col-span-8">
               <Card>
                 <CardHeader className="flex flex-row items-center gap-2 space-y-0 pb-2">
                   <Terminal className="h-5 w-5 text-muted-foreground"/>
@@ -328,6 +392,38 @@ export default function Home() {
                       ))}
                     </div>
                   </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+
+             <div className="lg:col-span-4">
+              <Card className="h-full">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center gap-2">
+                    <ToyBrick className="h-5 w-5 text-muted-foreground"/>
+                    <CardTitle className="text-base font-medium">Architecture Diagram</CardTitle>
+                  </div>
+                  <Button size="sm" onClick={handleGenerateDiagram} disabled={isGeneratingDiagram || !currentArchitecture}>
+                    {isGeneratingDiagram && <Spinner className="mr-2 h-4 w-4" />}
+                    Generate
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                   <div ref={diagramContainerRef} className="flex items-center justify-center min-h-[140px] w-full rounded-md border border-dashed bg-muted/50 p-4">
+                      {isGeneratingDiagram ? (
+                          <div className="text-center text-muted-foreground">
+                              <Spinner className="h-6 w-6 mx-auto mb-2" />
+                              <p className="text-sm">AI is generating the diagram...</p>
+                          </div>
+                      ) : mermaidCode ? (
+                          <MermaidDiagram code={mermaidCode} />
+                      ) : (
+                          <div className="text-center text-muted-foreground">
+                              <p className="text-sm">Click 'Generate' to create a diagram</p>
+                              <p className="text-xs">from the architecture description.</p>
+                          </div>
+                      )}
+                  </div>
                 </CardContent>
               </Card>
             </div>
