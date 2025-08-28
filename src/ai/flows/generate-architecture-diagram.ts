@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates an architecture diagram image based on a system description.
