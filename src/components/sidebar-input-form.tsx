@@ -24,6 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { USE_CASES } from "@/data/use-cases";
 import { Spinner } from "./icons";
+import { X } from "lucide-react";
 
 const formSchema = z.object({
   architectureDescription: z
@@ -39,12 +40,14 @@ const formSchema = z.object({
 
 type SidebarInputFormProps = {
   onAnalyze: (architectureDescription: string) => Promise<void>;
+  onStop: () => void;
   isAnalyzing: boolean;
   buttonText: string;
 };
 
 export function SidebarInputForm({
   onAnalyze,
+  onStop,
   isAnalyzing,
   buttonText,
 }: SidebarInputFormProps) {
@@ -131,10 +134,17 @@ export function SidebarInputForm({
           />
         </div>
         <div className="p-4 border-t bg-sidebar-background">
-          <Button type="submit" className="w-full" disabled={isAnalyzing}>
-            {isAnalyzing && <Spinner className="mr-2 h-4 w-4" />}
-            {buttonText}
-          </Button>
+           {isAnalyzing ? (
+              <Button type="button" variant="destructive" className="w-full" onClick={onStop}>
+                <X className="mr-2 h-4 w-4" />
+                Stop Analysis
+              </Button>
+            ) : (
+              <Button type="submit" className="w-full" disabled={isAnalyzing}>
+                {isAnalyzing && <Spinner className="mr-2 h-4 w-4" />}
+                {buttonText}
+              </Button>
+            )}
         </div>
       </form>
     </Form>

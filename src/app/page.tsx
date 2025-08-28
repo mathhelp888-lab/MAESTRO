@@ -18,7 +18,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Terminal } from "lucide-react";
 import Markdown from "react-markdown";
-import { cn } from "@/lib/utils";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -33,6 +32,7 @@ export default function Home() {
   const [buttonText, setButtonText] = React.useState("Generate Analysis");
   const [logs, setLogs] = React.useState<string[]>([]);
   const logsContainerRef = React.useRef<HTMLDivElement>(null);
+  const analysisCancelledRef = React.useRef(false);
 
   React.useEffect(() => {
     if (logsContainerRef.current) {
@@ -50,18 +50,29 @@ export default function Home() {
     );
   };
 
+  const handleStop = () => {
+    analysisCancelledRef.current = true;
+    addLog("Analysis stop requested. Finishing current step...");
+  };
+
   const handleAnalyze = async (architectureDescription: string) => {
+    analysisCancelledRef.current = false;
     setIsAnalyzing(true);
     setLogs([]);
     setLayers(INITIAL_LAYERS);
     addLog("Starting MAESTRO threat analysis...");
 
     for (const layer of MAESTRO_LAYERS) {
+      if (analysisCancelledRef.current) {
+        addLog(`Analysis stopped by user.`);
+        break;
+      }
       try {
         setButtonText(`Analyzing: ${layer.name}`);
         addLog(`[${layer.name}] Analysis started...`);
         updateLayerStatus(layer.id, "analyzing");
 
+        if (analysisCancelledRef.current) continue;
         addLog(`[${layer.name}] Calling AI to suggest threats...`);
         const threatResult = await suggestThreat(
           architectureDescription,
@@ -69,11 +80,18 @@ export default function Home() {
           layer.description
         );
         const threat = threatResult.threatAnalysis;
+
+        if (analysisCancelledRef.current) {
+           addLog(`[${layer.name}] Analysis stopped before mitigation step.`);
+           updateLayerStatus(layer.id, "error");
+           continue;
+        };
         addLog(`[${layer.name}] Threat analysis received.`);
         setLayers((prev) =>
           prev.map((l) => (l.id === layer.id ? { ...l, threat } : l))
         );
 
+        if (analysisCancelledRef.current) continue;
         addLog(`[${layer.name}] Calling AI for mitigation strategies...`);
         const mitigation = await recommendMitigation(threat, layer.name);
         addLog(`[${layer.name}] Mitigation recommendation received.`);
@@ -84,15 +102,19 @@ export default function Home() {
         );
         addLog(`[${layer.name}] Analysis complete.`);
       } catch (error) {
-        console.error(`Error analyzing layer ${layer.name}:`, error);
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        addLog(`[${layer.name}] Error: ${errorMessage}`);
-        updateLayerStatus(layer.id, "error");
+        if (!analysisCancelledRef.current) {
+          console.error(`Error analyzing layer ${layer.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+          addLog(`[${layer.name}] Error: ${errorMessage}`);
+          updateLayerStatus(layer.id, "error");
+        }
       }
     }
-
+    
     setButtonText("Generate Analysis");
-    addLog("Full analysis complete.");
+    if (!analysisCancelledRef.current) {
+      addLog("Full analysis complete.");
+    }
     setIsAnalyzing(false);
   };
 
@@ -110,6 +132,7 @@ export default function Home() {
         <SidebarContent className="p-0">
           <SidebarInputForm
             onAnalyze={handleAnalyze}
+            onStop={handleStop}
             isAnalyzing={isAnalyzing}
             buttonText={buttonText}
           />
