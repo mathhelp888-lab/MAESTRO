@@ -29,7 +29,7 @@ const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   status: "pending",
 }));
 
-const MAESTRO_METHODOLOGY_SUMMARY = `This report applies the MAESTRO (Malicious Agent Evasion, Strategy, and Threat Response Operations) framework for agentic AI threat modeling. MAESTRO provides a structured, seven-layer approach to systematically analyze and mitigate security risks in multi-agent systems. It addresses both traditional security vulnerabilities and novel threats arising from agentic factors like autonomy, non-determinism, and complex agent-to-agent interactions. The following sections detail the analysis for each layer based on the provided system architecture.`;
+const MAESTRO_METHODOLOGY_SUMMARY = `This report applies the MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome) framework for agentic AI threat modeling. MAESTRO provides a structured, seven-layer approach to systematically analyze and mitigate security risks in multi-agent systems. It addresses both traditional security vulnerabilities and novel threats arising from agentic factors like autonomy, non-determinism, and complex agent-to-agent interactions. The following sections detail the analysis for each layer based on the provided system architecture.`;
 
 
 export default function Home() {
@@ -313,7 +313,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-             <Button onClick={handleDownloadPdf} disabled={isAnalyzing || isDownloading}>
+             <Button onClick={handleDownloadPdf} disabled={isDownloading}>
                 {isDownloading ? (
                   <Spinner className="mr-2 h-4 w-4" />
                 ) : (
@@ -355,3 +355,5 @@ export default function Home() {
     </SidebarProvider>
   );
 }
+
+    
