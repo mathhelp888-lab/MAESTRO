@@ -84,8 +84,13 @@ Ensures uniform request/response representation across agents.
 
 A2A (Agent-to-Agent Protocol):
 
-Handles delegation, task passing, synchronization, and dependency resolution.
-Ensures agents can operate asynchronously while keeping shared state.`,
+Capability Discovery (Agent Cards, metadata, dynamic agent finding)
+Task Management (creation, delegation, monitoring, completion, task state)
+Multimodal Data Exchange (text, images, audio, video)
+Standardized Protocols (HTTP, JSON-RPC, SSE)
+Security and Authentication (support for multiple auth methods, encryption, RBAC)
+Support for Long-Running Tasks (asynchronous workflows, server-sent updates)
+User Experience Negotiation (negotiated content and UI format adaptation)`,
   },
   {
     value: "smart-home",
