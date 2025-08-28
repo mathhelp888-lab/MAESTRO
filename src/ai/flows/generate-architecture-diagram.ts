@@ -48,7 +48,7 @@ const generateArchitectureDiagramFlow = ai.defineFlow(
         prompt: prompt,
     });
 
-    if (!media.url) {
+    if (!media?.url) {
         throw new Error('Image generation failed to return a data URI.');
     }
       
