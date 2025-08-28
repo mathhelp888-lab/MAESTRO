@@ -34,14 +34,14 @@ const generateArchitectureDiagramFlow = ai.defineFlow(
   async ({ architectureDescription }) => {
     const prompt = `Generate a clear, professional architecture diagram for the following multi-agent system.
     
-    - The diagram should be visually clean and easy to understand.
-    - Use standard diagramming symbols (e.g., boxes for components, arrows for data flow).
-    - Clearly label all agents, services, data stores, and external systems.
-    - Illustrate the key interactions and communication paths (e.g., A2A, MCP).
-    - Output format should be a 16:9 aspect ratio image.
+- The diagram should be visually clean and easy to understand.
+- Use standard diagramming symbols (e.g., boxes for components, arrows for data flow).
+- Clearly label all agents, services, data stores, and external systems.
+- Illustrate the key interactions and communication paths (e.g., A2A, MCP).
+- Output format should be a 16:9 aspect ratio image.
     
-    System Description:
-    ${architectureDescription}`;
+System Description:
+${architectureDescription}`;
 
     const { media } = await ai.generate({
         model: 'googleai/imagen-4.0-fast-generate-001',
