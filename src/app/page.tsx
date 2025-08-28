@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { LayerCard } from "@/components/layer-card";
 import { SidebarInputForm } from "@/components/sidebar-input-form";
-import { suggestThreat, recommendMitigation, getExecutiveSummary } from "@/app/actions";
+import { suggestThreat, recommendMitigation, getExecutiveSummary, getArchitectureDiagram } from "@/app/actions";
 import { MAESTRO_LAYERS } from "@/data/maestro";
 import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -207,6 +207,40 @@ export default function Home() {
             y += 10;
         }
 
+        // --- ARCHITECTURE DIAGRAM ---
+        let diagramDataUri = null;
+        if (currentArchitecture) {
+          addLog("Generating architecture diagram...");
+          try {
+            const result = await getArchitectureDiagram(currentArchitecture);
+            diagramDataUri = result.diagramDataUri;
+            addLog("Architecture diagram generated successfully.");
+          } catch (error) {
+            console.error("Diagram generation failed:", error);
+            addLog("Diagram generation failed. Continuing without it.");
+          }
+        }
+
+        if (diagramDataUri) {
+          addLog("Embedding diagram into PDF...");
+          const img = new Image();
+          img.src = diagramDataUri;
+          await new Promise(resolve => {
+              img.onload = resolve;
+          });
+
+          const imgWidth = usableWidth;
+          const imgHeight = (img.height * imgWidth) / img.width;
+          if (y + imgHeight > pageHeight - margin) {
+              doc.addPage();
+              y = margin;
+          }
+          doc.addImage(img, 'PNG', margin, y, imgWidth, imgHeight);
+          y += imgHeight + 10;
+          addLog("Diagram embedded.");
+        }
+
+
         // --- EXECUTIVE SUMMARY ---
         addText("Executive Summary", { size: 16, style: "bold" });
         y+= 6;
@@ -342,5 +376,3 @@ export default function Home() {
     </SidebarProvider>
   );
 }
-
-    
