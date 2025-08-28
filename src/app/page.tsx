@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { LayerCard } from "@/components/layer-card";
 import { SidebarInputForm } from "@/components/sidebar-input-form";
-import { suggestThreat, recommendMitigation, getExecutiveSummary, getArchitectureDiagram } from "@/app/actions";
+import { suggestThreat, recommendMitigation, getExecutiveSummary } from "@/app/actions";
 import { MAESTRO_LAYERS } from "@/data/maestro";
 import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Terminal } from "lucide-react";
 import { Spinner } from "@/components/icons";
-import { useToast } from "@/hooks/use-toast";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -43,7 +42,6 @@ export default function Home() {
   const analysisCancelledRef = React.useRef(false);
   const [currentArchitecture, setCurrentArchitecture] = React.useState("");
   const [executiveSummary, setExecutiveSummary] = React.useState<string | null>(null);
-  const { toast } = useToast();
 
 
   React.useEffect(() => {
@@ -150,29 +148,9 @@ export default function Home() {
   };
 
   const handleDownloadPdf = async () => {
-    if (!currentArchitecture) {
-      toast({
-        title: "Architecture Description Missing",
-        description: "Please enter an architecture description before downloading the report.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     setIsDownloading(true);
     addLog("PDF generation started...");
-
-    let diagramDataUri = null;
-    try {
-      addLog("Generating architecture diagram...");
-      const diagramResult = await getArchitectureDiagram(currentArchitecture);
-      diagramDataUri = diagramResult.diagramDataUri;
-      addLog("Diagram generated successfully!");
-    } catch (error) {
-      console.error("Failed to generate architecture diagram:", error);
-      addLog("Diagram generation failed. The PDF will be created without it.");
-    }
-
+    
     addLog("Assembling PDF document...");
     const doc = new jsPDF({unit: "px", format: "letter"});
     doc.setFont("helvetica", "normal");
@@ -223,39 +201,12 @@ export default function Home() {
 
     // --- ARCHITECTURE DESCRIPTION ---
     doc.setTextColor(0);
-    addText("Analyzed System Architecture", { size: 16, style: "bold" });
-    y+= 6;
-    doc.setTextColor(80);
-    addText(currentArchitecture, { size: 10 });
-    y += 10;
-
-    // --- ARCHITECTURE DIAGRAM ---
-    if (diagramDataUri) {
-      if (y > pageHeight - 200) { // Check if there's enough space for the image
-        doc.addPage();
-        y = margin;
-      }
-      addText("Architecture Diagram", { size: 16, style: "bold" });
+    if (currentArchitecture) {
+      addText("Analyzed System Architecture", { size: 16, style: "bold" });
       y+= 6;
-      try {
-        const img = new Image();
-        img.src = diagramDataUri;
-        await new Promise(resolve => img.onload = resolve);
-        const aspectRatio = img.width / img.height;
-        const imgWidth = usableWidth;
-        const imgHeight = imgWidth / aspectRatio;
-        
-        if (y + imgHeight > pageHeight - margin) {
-            doc.addPage();
-            y = margin;
-        }
-        
-        doc.addImage(diagramDataUri, 'PNG', margin, y, imgWidth, imgHeight);
-        y += imgHeight + 10;
-      } catch (e) {
-        console.error("Error adding image to PDF:", e);
-        addText("Error embedding diagram.", { size: 10, style: "italic" });
-      }
+      doc.setTextColor(80);
+      addText(currentArchitecture, { size: 10 });
+      y += 10;
     }
 
     // --- EXECUTIVE SUMMARY ---
