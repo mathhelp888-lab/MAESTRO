@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Terminal } from "lucide-react";
+import { Spinner } from "@/components/icons";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -30,6 +31,7 @@ const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
 export default function Home() {
   const [layers, setLayers] = React.useState<LayerData[]>(INITIAL_LAYERS);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [isDownloading, setIsDownloading] = React.useState(false);
   const [buttonText, setButtonText] = React.useState("Generate Analysis");
   const [logs, setLogs] = React.useState<string[]>([]);
   const logsContainerRef = React.useRef<HTMLDivElement>(null);
@@ -65,21 +67,10 @@ export default function Home() {
     setIsAnalyzing(true);
     setCurrentArchitecture(architectureDescription);
     setExecutiveSummary(null);
-    setArchitectureDiagram(null);
+    setArchitectureDiagram(null); // Reset diagram on new analysis
     setLogs([]);
     setLayers(INITIAL_LAYERS);
     addLog("Starting MAESTRO threat analysis...");
-    
-    // Kick off diagram generation in parallel
-    const diagramPromise = getArchitectureDiagram(architectureDescription)
-      .then(result => {
-        addLog("Architecture diagram generated successfully.");
-        setArchitectureDiagram(result.diagramDataUri);
-      })
-      .catch(error => {
-        console.error("Error generating architecture diagram:", error);
-        addLog("Could not generate architecture diagram.");
-      });
 
     let finalLayers: LayerData[] = [];
 
@@ -146,8 +137,6 @@ export default function Home() {
             addLog("Could not generate executive summary.");
         }
     }
-
-    await diagramPromise;
     
     setButtonText("Generate Analysis");
     if (!analysisCancelledRef.current) {
@@ -156,7 +145,24 @@ export default function Home() {
     setIsAnalyzing(false);
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
+    setIsDownloading(true);
+    let diagramDataUri = architectureDiagram;
+
+    // Generate diagram if it doesn't exist yet for this analysis
+    if (!diagramDataUri) {
+      addLog("Generating architecture diagram for PDF report...");
+      try {
+        const result = await getArchitectureDiagram(currentArchitecture);
+        diagramDataUri = result.diagramDataUri;
+        setArchitectureDiagram(diagramDataUri); // Cache for future downloads of the same report
+        addLog("Architecture diagram generated successfully.");
+      } catch (error) {
+        console.error("Error generating architecture diagram for PDF:", error);
+        addLog("Could not generate architecture diagram.");
+      }
+    }
+
     const doc = new jsPDF();
     const margin = 15;
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -217,7 +223,7 @@ export default function Home() {
     y += 5;
 
     // --- ARCHITECTURE DIAGRAM ---
-    if (architectureDiagram) {
+    if (diagramDataUri) {
       if (y + 80 > pageHeight - margin) { // Check if there's enough space for the image
         doc.addPage();
         y = margin;
@@ -226,7 +232,7 @@ export default function Home() {
       doc.setFontSize(12);
       y = addText("AI-Generated Architecture Diagram", {}, y);
       try {
-        doc.addImage(architectureDiagram, 'PNG', margin, y, usableWidth, usableWidth * (9/16));
+        doc.addImage(diagramDataUri, 'PNG', margin, y, usableWidth, usableWidth * (9/16));
         y += usableWidth * (9/16) + 10;
       } catch (e) {
         console.error("Error adding image to PDF:", e);
@@ -319,6 +325,7 @@ export default function Home() {
     });
   
     doc.save("MAESTRO_Threat_Analysis.pdf");
+    setIsDownloading(false);
   };
 
   const isReportReady = (layers.some(l => l.status === 'complete' || l.status === 'error')) && !!currentArchitecture;
@@ -357,8 +364,12 @@ export default function Home() {
                 </p>
               </div>
             </div>
-             <Button onClick={handleDownloadPdf} disabled={!isReportReady || isAnalyzing}>
-              <Download className="mr-2 h-4 w-4" />
+             <Button onClick={handleDownloadPdf} disabled={!isReportReady || isAnalyzing || isDownloading}>
+                {isDownloading ? (
+                  <Spinner className="mr-2 h-4 w-4" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
               Download PDF Report
             </Button>
           </div>
