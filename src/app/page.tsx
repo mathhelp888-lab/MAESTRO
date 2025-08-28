@@ -79,7 +79,8 @@ export default function Home() {
     setExecutiveSummary(null);
     setLogs([]);
     setLayers(INITIAL_LAYERS);
-    setMermaidCode("");
+    // Note: We are intentionally NOT clearing the mermaidCode here
+    // to keep the diagram persistent across analyses.
     addLog("Starting MAESTRO threat analysis...");
 
     let finalLayers: LayerData[] = [];
