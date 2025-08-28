@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import jsPDF from "jspdf";
-import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -14,13 +13,13 @@ import {
 } from "@/components/ui/sidebar";
 import { LayerCard } from "@/components/layer-card";
 import { SidebarInputForm } from "@/components/sidebar-input-form";
-import { suggestThreat, recommendMitigation, getExecutiveSummary, getArchitectureDiagram } from "@/app/actions";
+import { suggestThreat, recommendMitigation, getExecutiveSummary } from "@/app/actions";
 import { MAESTRO_LAYERS } from "@/data/maestro";
 import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Terminal, Image as ImageIcon } from "lucide-react";
+import { Download, Terminal } from "lucide-react";
 import { Spinner } from "@/components/icons";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
@@ -45,9 +44,6 @@ export default function Home() {
   const analysisCancelledRef = React.useRef(false);
   const [currentArchitecture, setCurrentArchitecture] = React.useState("");
   const [executiveSummary, setExecutiveSummary] = React.useState<string | null>(null);
-  const [diagramDataUri, setDiagramDataUri] = React.useState<string | null>(null);
-  const [isGeneratingDiagram, setIsGeneratingDiagram] = React.useState(false);
-
 
   React.useEffect(() => {
     if (logsContainerRef.current) {
@@ -73,7 +69,6 @@ export default function Home() {
   const handleAnalyze = async (architectureDescription: string) => {
     analysisCancelledRef.current = false;
     setIsAnalyzing(true);
-    setDiagramDataUri(null); 
     setCurrentArchitecture(architectureDescription);
     setExecutiveSummary(null);
     setLogs([]);
@@ -153,26 +148,6 @@ export default function Home() {
     setIsAnalyzing(false);
   };
   
-  const handleGenerateDiagram = async () => {
-      if (!currentArchitecture) {
-          addLog("Please provide an architecture description first.");
-          return;
-      }
-      setIsGeneratingDiagram(true);
-      setDiagramDataUri(null);
-      addLog("Generating architecture diagram...");
-      try {
-          const result = await getArchitectureDiagram(currentArchitecture);
-          setDiagramDataUri(result.diagramDataUri);
-          addLog("Architecture diagram generated successfully.");
-      } catch (error) {
-          console.error("Diagram generation failed:", error);
-          addLog("Diagram generation failed. Please try again.");
-      } finally {
-          setIsGeneratingDiagram(false);
-      }
-  };
-
   const handleDownloadPdf = async () => {
     setIsDownloading(true);
     addLog("PDF generation started...");
@@ -229,26 +204,6 @@ export default function Home() {
             y+= 6;
             addText(currentArchitecture, { size: 10, color: 80 });
             y += 10;
-        }
-
-        // --- ARCHITECTURE DIAGRAM ---
-        if (diagramDataUri) {
-          addLog("Embedding diagram into PDF...");
-          const img = new window.Image();
-          img.src = diagramDataUri;
-          await new Promise(resolve => {
-              img.onload = resolve;
-          });
-
-          const imgWidth = usableWidth;
-          const imgHeight = (img.height * imgWidth) / img.width;
-          if (y + imgHeight > pageHeight - margin) {
-              doc.addPage();
-              y = margin;
-          }
-          doc.addImage(img, 'PNG', margin, y, imgWidth, imgHeight);
-          y += imgHeight + 10;
-          addLog("Diagram embedded.");
         }
 
         // --- EXECUTIVE SUMMARY ---
@@ -328,7 +283,6 @@ export default function Home() {
             buttonText={buttonText}
             onDescriptionChange={(desc) => {
               setCurrentArchitecture(desc);
-              setDiagramDataUri(null);
             }}
           />
         </SidebarContent>
@@ -378,51 +332,6 @@ export default function Home() {
               </Card>
             </div>
             
-            <div className="lg:col-span-12">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <div className="flex items-center gap-2">
-                            <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                            <CardTitle className="text-base font-medium">Architecture Diagram</CardTitle>
-                        </div>
-                        <Button
-                            size="sm"
-                            onClick={handleGenerateDiagram}
-                            disabled={isGeneratingDiagram || !currentArchitecture}
-                        >
-                            {isGeneratingDiagram ? (
-                                <Spinner className="mr-2 h-4 w-4" />
-                            ) : null}
-                            Generate Diagram
-                        </Button>
-                    </CardHeader>
-                    <CardContent className="flex items-center justify-center min-h-[200px]">
-                        {isGeneratingDiagram ? (
-                            <div className="flex flex-col items-center text-muted-foreground">
-                                <Spinner className="h-8 w-8 mb-2" />
-                                <p>AI is generating the diagram...</p>
-                            </div>
-                        ) : diagramDataUri ? (
-                            <Image
-                                src={diagramDataUri}
-                                alt="Generated architecture diagram"
-                                width={800}
-                                height={450}
-                                className="rounded-lg border"
-                            />
-                        ) : (
-                            <div className="text-center text-muted-foreground">
-                                <p>Diagram will appear here once generated.</p>
-                                <p className="text-xs">
-                                  {currentArchitecture ? "Click 'Generate Diagram' to start." : "Enter an architecture description first."}
-                                </p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-
-
             {layers.map((layer) => (
               <div key={layer.id} className="lg:col-span-4 md:col-span-6">
                 <LayerCard layer={layer} />
@@ -434,4 +343,3 @@ export default function Home() {
     </SidebarProvider>
   );
 }
-
