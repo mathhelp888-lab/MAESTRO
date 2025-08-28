@@ -14,13 +14,78 @@ Communication is done via Agent-to-Agent JSON messages. The system runs on a clo
   {
     value: "travel-planner",
     label: "Automated Travel Planner",
-    description: `A system for planning user travel itineraries.
-- A 'TripRequest' agent parses user's natural language requests (e.g., "Plan a 5-day trip to Paris for me").
-- A 'Flight' agent uses a tool to search for flights.
-- A 'Hotel' agent uses a tool to find accommodations.
-- An 'Activity' agent searches for local attractions.
-- An 'Itinerary' agent coordinates the other agents and compiles the final plan.
-Agents use delegation; the 'Itinerary' agent delegates tasks and waits for responses. Agent interaction is complex due to dependencies (e.g., book flights before hotels).`,
+    description: `A System for Planning User Travel Itineraries (with MCP + A2A)
+Agents and MCP Server Tools
+TripRequest Agent
+
+Role: Parses the user’s natural language requests.
+
+MCP Server Tools:
+
+NLU Parser (extracts structured entities like destination, dates, budget).
+Constraint Validator (checks feasibility of requests).
+Request Normalizer (converts parsed requests into standardized MCP request objects).
+
+Communication: Exports normalized trip requests via A2A protocol.
+
+Flight Agent
+
+Role: Searches for flights.
+
+MCP Server Tools:
+
+FlightSearch API (queries airline databases).
+PriceOptimizer (filters flights by budget/time).
+Booking Validator (checks seat availability and rules).
+
+Communication: Accepts MCP-formatted trip requests from A2A, responds with MCP flight options.
+
+Hotel Agent
+
+Role: Finds accommodations.
+
+MCP Server Tools:
+
+HotelSearch API (queries booking providers).
+RoomMatcher (matches hotels to group size, budget, preferences).
+AvailabilityChecker (ensures rooms align with selected flights).
+
+Communication: Receives context (e.g., travel dates from Flight Agent) via A2A, responds in MCP format.
+
+Activity Agent
+
+Role: Suggests local attractions and activities.
+
+MCP Server Tools:
+
+AttractionFinder (queries local events and POIs).
+RecommendationEngine (filters by user interests, seasonality).
+ScheduleAligner (ensures activities fit between flights/hotel check-in).
+
+Communication: Uses A2A to sync with itinerary context and returns MCP-structured activity sets.
+
+Itinerary Agent
+
+Role: Coordinates all other agents, compiles the final plan.
+
+MCP Server Tools:
+
+DependencyManager (enforces ordering: flights → hotels → activities).
+PlanComposer (merges agent responses into a unified itinerary).
+ConflictResolver (handles overlaps or budget conflicts).
+
+Communication: Delegates tasks to agents via A2A, aggregates all MCP responses, outputs the final travel plan.
+
+Protocol Roles
+MCP (Model Context Protocol):
+
+Provides structured tool interfaces (APIs, validators, optimizers).
+Ensures uniform request/response representation across agents.
+
+A2A (Agent-to-Agent Protocol):
+
+Handles delegation, task passing, synchronization, and dependency resolution.
+Ensures agents can operate asynchronously while keeping shared state.`,
   },
   {
     value: "smart-home",
