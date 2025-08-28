@@ -44,17 +44,22 @@ const generateArchitectureDiagramFlow = ai.defineFlow(
 System Description:
 ${architectureDescription}`;
 
-    const { media } = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate-001',
-        prompt: prompt,
-    });
+    try {
+      const { media } = await ai.generate({
+          model: 'googleai/imagen-4.0-fast-generate-001',
+          prompt: prompt,
+      });
 
-    if (!media?.url) {
-        throw new Error('Image generation failed to return a data URI.');
+      if (!media?.url) {
+          throw new Error('Image generation failed to return a data URI.');
+      }
+        
+      return {
+          diagramDataUri: media.url
+      };
+    } catch(e) {
+        console.error("Underlying image generation error:", e);
+        throw new Error(`Image generation failed: ${e instanceof Error ? e.message : String(e)}`);
     }
-      
-    return {
-        diagramDataUri: media.url
-    };
   }
 );

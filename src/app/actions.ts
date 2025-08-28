@@ -27,7 +27,7 @@ export async function suggestThreat(
     return result;
   } catch (error) {
     console.error("Error in suggestThreatsForLayer:", error);
-    throw new Error("Failed to get threat suggestion from AI.");
+    throw new Error(`Failed to get threat suggestion from AI. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -43,7 +43,7 @@ export async function recommendMitigation(
     return result;
   } catch (error) {
     console.error("Error in recommendMitigations:", error);
-    throw new Error("Failed to get mitigation recommendation from AI.");
+    throw new Error(`Failed to get mitigation recommendation from AI. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -59,7 +59,7 @@ export async function getExecutiveSummary(
     return result;
   } catch (error) {
     console.error("Error in generateExecutiveSummary:", error);
-    throw new Error("Failed to generate executive summary.");
+    throw new Error(`Failed to generate executive summary. Reason: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -73,6 +73,6 @@ export async function getArchitectureDiagram(
     return result;
   } catch (error) {
     console.error("Error in generateArchitectureDiagram:", error);
-    throw new Error("Failed to generate architecture diagram.");
+    throw error;
   }
 }
