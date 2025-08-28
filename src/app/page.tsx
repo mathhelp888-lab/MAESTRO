@@ -17,6 +17,8 @@ import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Terminal } from "lucide-react";
+import Markdown from "react-markdown";
+import { cn } from "@/lib/utils";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -63,10 +65,11 @@ export default function Home() {
         addLog(`[${layer.name}] Calling AI to suggest threats...`);
         const threatResult = await suggestThreat(
           architectureDescription,
-          layer.name
+          layer.name,
+          layer.description
         );
         const threat = threatResult.threatAnalysis;
-        addLog(`[${layer.name}] Threat identified: "${threat.substring(0, 50)}..."`);
+        addLog(`[${layer.name}] Threat analysis received.`);
         setLayers((prev) =>
           prev.map((l) => (l.id === layer.id ? { ...l, threat } : l))
         );

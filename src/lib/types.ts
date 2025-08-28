@@ -9,6 +9,7 @@ export type LayerStatus = "pending" | "analyzing" | "complete" | "error";
 export type LayerData = {
   id: string;
   name: string;
+  description: string;
   threat: string | null;
   mitigation: Mitigation | null;
   status: LayerStatus;

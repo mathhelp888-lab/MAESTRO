@@ -16,6 +16,7 @@ const SuggestThreatsForLayerInputSchema = z.object({
     .string()
     .describe('A detailed description of the system architecture.'),
   layerName: z.string().describe('The name of the MAESTRO layer to analyze.'),
+  layerDescription: z.string().describe('The description of the MAESTRO layer.'),
 });
 export type SuggestThreatsForLayerInput = z.infer<
   typeof SuggestThreatsForLayerInputSchema
@@ -24,7 +25,9 @@ export type SuggestThreatsForLayerInput = z.infer<
 const SuggestThreatsForLayerOutputSchema = z.object({
   threatAnalysis: z
     .string()
-    .describe('A comprehensive threat analysis for the specified layer.'),
+    .describe(
+      'A comprehensive threat analysis for the specified layer, formatted in Markdown.'
+    ),
 });
 export type SuggestThreatsForLayerOutput = z.infer<
   typeof SuggestThreatsForLayerOutputSchema
@@ -42,11 +45,29 @@ const prompt = ai.definePrompt({
   output: {schema: SuggestThreatsForLayerOutputSchema},
   prompt: `You are a security analyst specializing in identifying potential security vulnerabilities in multi-agent systems, with a focus on the MAESTRO architecture.
 
-You will use the provided system architecture description to generate a comprehensive threat analysis for the {{layerName}} layer. Consider factors such as Non-Determinism, Autonomy, No Trust Boundary, Dynamic Identity and Access Control, and Agent to Agent interactions, delegations, and communication complexity.
+Your task is to generate a threat analysis for the specified MAESTRO layer.
 
-System Architecture Description: {{{architectureDescription}}}
+**System Architecture Description:**
+{{{architectureDescription}}}
 
-Threat Analysis:`,
+**MAESTRO Layer to Analyze:** {{layerName}}
+**Layer Description:** {{{layerDescription}}}
+
+**Agentic Factors to Consider:**
+- Non-Determinism
+- Autonomy
+- No Trust Boundary
+- Dynamic Identity and Access Control
+- Agent to Agent interactions, delegations, and communication complexity
+
+**Instructions:**
+1.  Analyze the provided system architecture and the MAESTRO layer description.
+2.  Generate a threat analysis structured into two categories, formatted as Markdown.
+3.  **Category 1: Traditional Threats:** Identify inherent security threats for this layer, ignoring agentic factors. For example, for 'Foundation Models', this could include model poisoning, data leakage, or member inference attacks.
+4.  **Category 2: Agentic Threats:** Reason about how each of the "Agentic Factors to Consider" could introduce new threats or exacerbate existing ones within this specific layer. If a factor applies, describe the potential threat. If it does not apply, you can state that.
+5.  Format the entire output as a single Markdown string. Use headings, bold text, and lists to make the report clear and readable.
+
+**Threat Analysis:**`,
 });
 
 const suggestThreatsForLayerFlow = ai.defineFlow(

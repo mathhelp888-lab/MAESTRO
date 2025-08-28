@@ -7,12 +7,14 @@ import { type SuggestThreatsForLayerOutput } from "@/ai/flows/suggest-threats-fo
 
 export async function suggestThreat(
   architectureDescription: string,
-  layerName: string
+  layerName: string,
+  layerDescription: string
 ): Promise<SuggestThreatsForLayerOutput> {
   try {
     const result = await suggestThreatsForLayer({
       architectureDescription,
       layerName,
+      layerDescription,
     });
     return result;
   } catch (error) {

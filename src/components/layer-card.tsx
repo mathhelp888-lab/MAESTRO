@@ -23,7 +23,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Spinner } from "./icons";
-import { cn } from "@/lib/utils";
+import Markdown from "react-markdown";
 
 interface LayerCardProps {
   layer: LayerData;
@@ -86,11 +86,11 @@ export function LayerCard({ layer }: LayerCardProps) {
               <AccordionTrigger className="font-semibold">
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="h-5 w-5 text-destructive" />
-                  Identified Threat
+                  Identified Threats
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">
-                {layer.threat}
+              <AccordionContent className="text-muted-foreground prose prose-sm dark:prose-invert max-w-none">
+                <Markdown>{layer.threat}</Markdown>
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
