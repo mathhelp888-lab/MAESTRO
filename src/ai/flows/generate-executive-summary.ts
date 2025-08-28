@@ -52,6 +52,7 @@ The summary should:
 4.  Conclude with a statement about the importance of a defense-in-depth strategy.
 5.  Be concise, professional, and suitable for a leadership audience.
 6.  Format the output as a single Markdown string.
+7.  Include a link to the MAESTRO framework: https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro
 
 **Analyzed Architecture:**
 {{{architectureDescription}}}
@@ -87,3 +88,5 @@ const generateExecutiveSummaryFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

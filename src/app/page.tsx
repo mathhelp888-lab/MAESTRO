@@ -29,7 +29,9 @@ const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   status: "pending",
 }));
 
-const MAESTRO_METHODOLOGY_SUMMARY = `This report applies the MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome) framework for agentic AI threat modeling. MAESTRO provides a structured, seven-layer approach to systematically analyze and mitigate security risks in multi-agent systems. It addresses both traditional security vulnerabilities and novel threats arising from agentic factors like autonomy, non-determinism, and complex agent-to-agent interactions. The following sections detail the analysis for each layer based on the provided system architecture.`;
+const MAESTRO_METHODOLOGY_SUMMARY = `This report applies the MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome) framework for agentic AI threat modeling. MAESTRO provides a structured, seven-layer approach to systematically analyze and mitigate security risks in multi-agent systems. It addresses both traditional security vulnerabilities and novel threats arising from agentic factors like autonomy, non-determinism, and complex agent-to-agent interactions. The following sections detail the analysis for each layer based on the provided system architecture.
+
+For more details on the framework, visit: https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro`;
 
 
 export default function Home() {
