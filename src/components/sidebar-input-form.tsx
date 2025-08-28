@@ -1,8 +1,10 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +45,7 @@ type SidebarInputFormProps = {
   onStop: () => void;
   isAnalyzing: boolean;
   buttonText: string;
+  onDescriptionChange: (description: string) => void;
 };
 
 export function SidebarInputForm({
@@ -50,6 +53,7 @@ export function SidebarInputForm({
   onStop,
   isAnalyzing,
   buttonText,
+  onDescriptionChange,
 }: SidebarInputFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,6 +62,12 @@ export function SidebarInputForm({
       preset: USE_CASES[0].value,
     },
   });
+
+  const archDescription = form.watch("architectureDescription");
+  React.useEffect(() => {
+      onDescriptionChange(archDescription);
+  }, [archDescription, onDescriptionChange]);
+
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     onAnalyze(values.architectureDescription);
