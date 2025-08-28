@@ -160,22 +160,20 @@ export default function Home() {
     }
     
     setIsDownloading(true);
+    addLog("PDF generation started...");
 
     let diagramDataUri = null;
     try {
-      toast({ title: "Generating architecture diagram..." });
+      addLog("Generating architecture diagram...");
       const diagramResult = await getArchitectureDiagram(currentArchitecture);
       diagramDataUri = diagramResult.diagramDataUri;
-      toast({ title: "Diagram generated successfully!" });
+      addLog("Diagram generated successfully!");
     } catch (error) {
       console.error("Failed to generate architecture diagram:", error);
-      toast({
-        title: "Diagram Generation Failed",
-        description: "Could not generate the architecture diagram. The PDF will be created without it.",
-        variant: "destructive",
-      });
+      addLog("Diagram generation failed. The PDF will be created without it.");
     }
 
+    addLog("Assembling PDF document...");
     const doc = new jsPDF({unit: "px", format: "letter"});
     doc.setFont("helvetica", "normal");
     const margin = 30;
@@ -322,7 +320,9 @@ export default function Home() {
       y += 10;
     });
   
+    addLog("Saving PDF file...");
     doc.save("MAESTRO_Threat_Analysis.pdf");
+    addLog("PDF report saved successfully.");
     setIsDownloading(false);
   };
 
@@ -403,3 +403,5 @@ export default function Home() {
     </SidebarProvider>
   );
 }
+
+    
