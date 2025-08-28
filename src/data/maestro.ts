@@ -1,9 +1,9 @@
 export const MAESTRO_LAYERS = [
   { id: 'foundation-models', name: 'Foundation Models' },
-  { id: 'agent-to-agent', name: 'Agent-to-Agent' },
-  { id: 'environment', name: 'Environment' },
-  { id: 'system-of-agents', name: 'System of Agents' },
-  { id: 'tools', name: 'Tools' },
-  { id: 'reasoning', name: 'Reasoning' },
-  { id: 'orchestration', name: 'Orchestration' },
+  { id: 'data-operations', name: 'Data Operations' },
+  { id: 'agent-frameworks', name: 'Agent Frameworks' },
+  { id: 'deployment-infrastructure', name: 'Deployment & Infrastructure' },
+  { id: 'evaluation-observability', name: 'Evaluation & Observability' },
+  { id: 'security-compliance', name: 'Security & Compliance' },
+  { id: 'agent-ecosystem', name: 'Agent Ecosystem' },
 ] as const;
