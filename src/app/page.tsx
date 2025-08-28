@@ -188,33 +188,38 @@ export default function Home() {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
         doc.setTextColor(0);
-        if (y > pageHeight - margin) { doc.addPage(); y = margin; }
+        if (y > pageHeight - margin - 20) { doc.addPage(); y = margin; }
         doc.text("Mitigation Strategy", margin, y);
-        y += 6;
+        y += 8;
         
         doc.setFont("helvetica", "bold");
         doc.setFontSize(10);
         doc.text("Recommendation:", margin, y);
+        y += 5;
         doc.setFont("helvetica", "normal");
-        const recLines = doc.splitTextToSize(layer.mitigation.recommendation, usableWidth - 25);
+        const recLines = doc.splitTextToSize(layer.mitigation.recommendation, usableWidth);
         if (y + recLines.length * 5 > pageHeight - margin) { doc.addPage(); y = margin; }
-        doc.text(recLines, margin + 25, y);
-        y += recLines.length * 5 + 2;
+        doc.text(recLines, margin, y);
+        y += recLines.length * 5 + 4;
   
         doc.setFont("helvetica", "bold");
+        if (y > pageHeight - margin - 10) { doc.addPage(); y = margin; }
         doc.text("Reasoning:", margin, y);
+        y += 5;
         doc.setFont("helvetica", "normal");
-        const reasonLines = doc.splitTextToSize(layer.mitigation.reasoning, usableWidth - 25);
+        const reasonLines = doc.splitTextToSize(layer.mitigation.reasoning, usableWidth);
         if (y + reasonLines.length * 5 > pageHeight - margin) { doc.addPage(); y = margin; }
-        doc.text(reasonLines, margin + 25, y);
-        y += reasonLines.length * 5 + 2;
+        doc.text(reasonLines, margin, y);
+        y += reasonLines.length * 5 + 4;
   
         doc.setFont("helvetica", "bold");
+        if (y > pageHeight - margin - 10) { doc.addPage(); y = margin; }
         doc.text("Caveats:", margin, y);
+        y += 5;
         doc.setFont("helvetica", "normal");
-        const caveatLines = doc.splitTextToSize(layer.mitigation.caveats, usableWidth - 25);
+        const caveatLines = doc.splitTextToSize(layer.mitigation.caveats, usableWidth);
         if (y + caveatLines.length * 5 > pageHeight - margin) { doc.addPage(); y = margin; }
-        doc.text(caveatLines, margin + 25, y);
+        doc.text(caveatLines, margin, y);
         y += caveatLines.length * 5 + 8;
       }
   
