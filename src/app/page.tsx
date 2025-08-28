@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { LayerCard } from "@/components/layer-card";
 import { SidebarInputForm } from "@/components/sidebar-input-form";
-import { suggestThreat, recommendMitigation, getExecutiveSummary } from "@/app/actions";
+import { suggestThreat, recommendMitigation, getExecutiveSummary, getArchitectureDiagram } from "@/app/actions";
 import { MAESTRO_LAYERS } from "@/data/maestro";
 import { type LayerData } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Terminal } from "lucide-react";
 import { Spinner } from "@/components/icons";
+import { useToast } from "@/hooks/use-toast";
 
 const INITIAL_LAYERS: LayerData[] = MAESTRO_LAYERS.map((layer) => ({
   ...layer,
@@ -42,6 +43,7 @@ export default function Home() {
   const analysisCancelledRef = React.useRef(false);
   const [currentArchitecture, setCurrentArchitecture] = React.useState("");
   const [executiveSummary, setExecutiveSummary] = React.useState<string | null>(null);
+  const { toast } = useToast();
 
 
   React.useEffect(() => {
@@ -148,7 +150,31 @@ export default function Home() {
   };
 
   const handleDownloadPdf = async () => {
+    if (!currentArchitecture) {
+      toast({
+        title: "Architecture Description Missing",
+        description: "Please enter an architecture description before downloading the report.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsDownloading(true);
+
+    let diagramDataUri = null;
+    try {
+      toast({ title: "Generating architecture diagram..." });
+      const diagramResult = await getArchitectureDiagram(currentArchitecture);
+      diagramDataUri = diagramResult.diagramDataUri;
+      toast({ title: "Diagram generated successfully!" });
+    } catch (error) {
+      console.error("Failed to generate architecture diagram:", error);
+      toast({
+        title: "Diagram Generation Failed",
+        description: "Could not generate the architecture diagram. The PDF will be created without it.",
+        variant: "destructive",
+      });
+    }
 
     const doc = new jsPDF({unit: "px", format: "letter"});
     doc.setFont("helvetica", "normal");
@@ -169,7 +195,7 @@ export default function Home() {
         : text;
 
       const lines = doc.splitTextToSize(plainText, usableWidth - (x > margin ? (x - margin) : 0));
-      const textHeight = lines.length * doc.getLineHeight() * 0.8;
+      const textHeight = lines.length * (doc.getLineHeight(plainText) / doc.getFont().lineHeightFactor) * 1.15;
   
       if (y + textHeight > pageHeight - margin) {
         doc.addPage();
@@ -202,12 +228,36 @@ export default function Home() {
     addText("Analyzed System Architecture", { size: 16, style: "bold" });
     y+= 6;
     doc.setTextColor(80);
-    if(currentArchitecture) {
-      addText(currentArchitecture, { size: 10 });
-    } else {
-       addText("No architecture description was provided.", { size: 10, style: "italic" });
-    }
+    addText(currentArchitecture, { size: 10 });
     y += 10;
+
+    // --- ARCHITECTURE DIAGRAM ---
+    if (diagramDataUri) {
+      if (y > pageHeight - 200) { // Check if there's enough space for the image
+        doc.addPage();
+        y = margin;
+      }
+      addText("Architecture Diagram", { size: 16, style: "bold" });
+      y+= 6;
+      try {
+        const img = new Image();
+        img.src = diagramDataUri;
+        const aspectRatio = img.width / img.height;
+        const imgWidth = usableWidth;
+        const imgHeight = imgWidth / aspectRatio;
+        
+        if (y + imgHeight > pageHeight - margin) {
+            doc.addPage();
+            y = margin;
+        }
+        
+        doc.addImage(diagramDataUri, 'PNG', margin, y, imgWidth, imgHeight);
+        y += imgHeight + 10;
+      } catch (e) {
+        console.error("Error adding image to PDF:", e);
+        addText("Error embedding diagram.", { size: 10, style: "italic" });
+      }
+    }
 
     // --- EXECUTIVE SUMMARY ---
     if (y > pageHeight - 120) {
@@ -275,8 +325,6 @@ export default function Home() {
     doc.save("MAESTRO_Threat_Analysis.pdf");
     setIsDownloading(false);
   };
-
-  const isReportReady = (layers.some(l => l.status === 'complete' || l.status === 'error')) && !!currentArchitecture;
 
   return (
     <SidebarProvider>
@@ -355,5 +403,3 @@ export default function Home() {
     </SidebarProvider>
   );
 }
-
-    
