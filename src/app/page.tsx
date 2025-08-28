@@ -240,6 +240,7 @@ export default function Home() {
       try {
         const img = new Image();
         img.src = diagramDataUri;
+        await new Promise(resolve => img.onload = resolve);
         const aspectRatio = img.width / img.height;
         const imgWidth = usableWidth;
         const imgHeight = imgWidth / aspectRatio;
@@ -403,5 +404,3 @@ export default function Home() {
     </SidebarProvider>
   );
 }
-
-    
