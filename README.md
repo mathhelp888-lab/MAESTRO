@@ -35,8 +35,8 @@ Follow these instructions to set up and run the project locally.
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
-    cd <repository-directory>
+    git clone https://github.com/kenhuangus/MAESTRO.git
+    cd MAESTRO
     ```
 
 2.  **Install dependencies:**
