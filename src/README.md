@@ -6,7 +6,7 @@ This tool is built for educational and demonstrative purposes to showcase how th
 
 ## Reference
 
-This tool is based on the **MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
+This tool is based on the **MAESTRO (Malicious Agent Evasion, Strategy, and Threat Response Operations)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
 
 - **Paper**: [Agentic AI Threat Modeling Framework: MAESTRO](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)
 
