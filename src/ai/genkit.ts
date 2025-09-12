@@ -16,7 +16,7 @@ const config: {
 switch (provider) {
   case 'openai':
     config.plugins = [openAI({apiKey: process.env.OPENAI_API_KEY})];
-    config.model = process.env.LLM_MODEL || 'openai/gpt-4o-mini';
+    config.model = `openai/${process.env.LLM_MODEL || 'gpt-4o-mini'}`;
     break;
   case 'ollama':
     config.plugins = [ollama({
@@ -30,7 +30,7 @@ switch (provider) {
     break;
   default:
     config.plugins = [googleAI()];
-    config.model = process.env.LLM_MODEL || 'googleai/gemini-2.5-flash';
+    config.model = `googleai/${process.env.LLM_MODEL || 'gemini-2.5-flash'}`;
 }
 
 export const ai = genkit(config);

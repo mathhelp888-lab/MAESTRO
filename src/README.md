@@ -54,9 +54,12 @@ Follow these instructions to set up and run the project locally.
 
         # For OpenAI
         OPENAI_API_KEY=your_api_key_here
+        
+        # For Ollama
+        OLLAMA_SERVER_ADDRESS=http://localhost:11434
 
         # Optional: override the default model
-        LLM_MODEL=provider/model-name
+        LLM_MODEL=model-name
         ```
 
 ### Running the Application

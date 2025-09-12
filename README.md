@@ -6,7 +6,7 @@ This tool is built for educational and demonstrative purposes to showcase how th
 
 ## Reference
 
-This tool is based on the **MAESTRO (Malicious Agent Evasion, Strategy, and Threat Response Operations)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
+This tool is based on the **MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
 
 - **Paper**: [Agentic AI Threat Modeling Framework: MAESTRO](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)
 
@@ -54,9 +54,12 @@ Follow these instructions to set up and run the project locally.
 
         # For OpenAI
         OPENAI_API_KEY=your_api_key_here
+        
+        # For Ollama
+        OLLAMA_SERVER_ADDRESS=http://localhost:11434
 
         # Optional: override the default model
-        LLM_MODEL=provider/model-name
+        LLM_MODEL=model-name
         ```
 
 ### Running the Application
@@ -127,3 +130,5 @@ SOFTWARE.
 ## Contact
 
 For questions, feedback, or inquiries, please contact us at **info@distributedapps.ai**.
+
+    
