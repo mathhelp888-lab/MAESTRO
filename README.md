@@ -136,4 +136,4 @@ SOFTWARE.
 
 ## Contact
 
-For questions, feedback, or inquiries, please contact us at **info@distributedapps.ai**.
+For questions, feedback, or inquiries, please contact us at **[info@distributedapps.ai](mailto:info@distributedapps.ai)**.
