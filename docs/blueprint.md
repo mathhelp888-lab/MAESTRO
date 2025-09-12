@@ -2,8 +2,8 @@
 
 ## Core Features:
 
-- Architecture Input: Provides a <Textarea> for detailed system architecture descriptions, enabling precise AI threat analysis.
-- Use-Case Presets: A <Select> dropdown pre-populated with 10 multi-agent system use-case descriptions (including MCP Server tools and Google Agent to Agent communication examples using agent card JSON files); auto-populates the <Textarea> to streamline user input.
+- Architecture Input: Provides a `<Textarea>` for detailed system architecture descriptions, enabling precise AI threat analysis.
+- Use-Case Presets: A `<Select>` dropdown pre-populated with 10 multi-agent system use-case descriptions (including MCP Server tools and Google Agent to Agent communication examples using agent card JSON files); auto-populates the `<Textarea>` to streamline user input.
 - AI-Powered Threat Identification: Server action to invoke a Genkit flow (`suggestThreatsForLayer`), using the user's architectural description as a tool for the AI to generate a comprehensive threat analysis for each of the 7 MAESTRO layers. The AI will consider Non-Determinism, Autonomy, No Trust Boundary, Dynamic Identity and Access Control, and Agent to Agent interations, delegations, communication complexity, and other factors to identify applicable threats.
 - AI-Driven Mitigation Generation: For each threat identified, a Genkit flow (`recommendMitigations`) generates mitigation strategies including recommendation, reasoning, and caveats.
 - Real-Time Streaming UI: Stream the threat analysis and mitigation process for real-time UI updates.

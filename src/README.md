@@ -1,6 +1,6 @@
 # MAESTRO Threat Analyzer
 
-The MAESTRO Threat Analyzer is an AI-powered tool designed to help developers and security professionals identify and mitigate potential threats in multi-agent systems. It uses Google's Gemini model and the MAESTRO threat modeling framework to analyze system architectures and generate detailed security insights.
+The MAESTRO Threat Analyzer is an AI-powered tool designed to help developers and security professionals identify and mitigate potential threats in multi-agent systems. It uses large language models via Genkit—including Google Gemini, OpenAI, and locally hosted Ollama models—together with the MAESTRO threat modeling framework to analyze system architectures and generate detailed security insights.
 
 This tool is built for educational and demonstrative purposes to showcase how threat modeling can be applied to complex, agentic AI systems.
 
@@ -16,7 +16,7 @@ We highly recommend reading the paper to understand the seven-layer architecture
 
 -   **Detailed Architecture Input**: Provides a textarea for users to describe their system architecture, which is used by the AI for analysis.
 -   **Use-Case Presets**: Comes with pre-populated use-case descriptions that detail interactions between agents using protocols like **A2A (Agent-to-Agent)** and **MCP (Model Context Protocol)**.
--   **AI-Powered Threat Identification**: For each of the seven MAESTRO layers, the tool uses a Genkit flow to call the Gemini AI model. The AI identifies two categories of threats:
+-   **AI-Powered Threat Identification**: For each of the seven MAESTRO layers, the tool uses a Genkit flow to call the configured LLM provider. The AI identifies two categories of threats:
     1.  **Traditional Threats**: Inherent security risks for the layer's technology, independent of agentic factors.
     2.  **Agentic Threats**: Novel threats or exacerbations of existing ones arising from factors like Non-Determinism, Autonomy, and No Trust Boundary.
 -   **AI-Driven Mitigation Generation**: For each identified threat, the AI recommends specific mitigation strategies, including the reasoning behind them and any potential caveats.
@@ -46,9 +46,17 @@ Follow these instructions to set up and run the project locally.
 
 3.  **Set up environment variables:**
     -   Create a `.env` file in the root of the project.
-    -   Add your Google Gemini API key to the file:
+    -   Choose which provider to use by setting `LLM_PROVIDER` to `google`, `openai`, or `ollama` (defaults to `google`).
+    -   Provide the appropriate credentials for the selected provider:
         ```
+        # For Google Gemini
         GEMINI_API_KEY=your_api_key_here
+
+        # For OpenAI
+        OPENAI_API_KEY=your_api_key_here
+
+        # Optional: override the default model
+        LLM_MODEL=provider/model-name
         ```
 
 ### Running the Application
