@@ -9,7 +9,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { LayerData } from '@/lib/types';
 
 const LayerDataSchema = z.object({
   id: z.string(),
