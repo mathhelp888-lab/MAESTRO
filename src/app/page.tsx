@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import jsPDF from "jspdf";
-import mermaid from "mermaid";
 import {
   Sidebar,
   SidebarContent,
@@ -120,7 +119,7 @@ export default function Home() {
         addLog(`[${layer.name}] Mitigation recommendation received.`);
         setLayers((prev) => {
           const newLayers = prev.map((l) =>
-            l.id === layer.id ? { ...l, mitigation, status: "complete" } : l
+            l.id === layer.id ? { ...l, mitigation, status: "complete" as const } : l
           );
           finalLayers = newLayers;
           return newLayers;
@@ -188,7 +187,15 @@ export default function Home() {
         const usableWidth = pageWidth - margin * 2;
         let y = margin;
 
-        const addText = (text: string, options: any = {}) => {
+        interface TextOptions {
+            size?: number;
+            style?: 'normal' | 'bold' | 'italic' | 'bolditalic';
+            x?: number;
+            align?: 'left' | 'center' | 'right' | 'justify';
+            color?: number;
+        }
+
+        const addText = (text: string, options: TextOptions = {}) => {
             const { size = 10, style = 'normal', x = margin, align = 'left', color = 0 } = options;
 
             doc.setFontSize(size);
@@ -420,7 +427,7 @@ export default function Home() {
                           <MermaidDiagram code={mermaidCode} />
                       ) : (
                           <div className="text-center text-muted-foreground">
-                              <p className="text-sm">Click 'Generate' to create a diagram</p>
+                              <p className="text-sm">Click &apos;Generate&apos; to create a diagram</p>
                               <p className="text-xs">from the architecture description.</p>
                           </div>
                       )}
