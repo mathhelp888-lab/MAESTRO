@@ -1,12 +1,12 @@
 # MAESTRO Threat Analyzer
 
-The MAESTRO Threat Analyzer is an AI-powered tool designed to help developers and security professionals identify and mitigate potential threats in multi-agent systems. It uses Google's Gemini model and the MAESTRO threat modeling framework to analyze system architectures and generate detailed security insights.
+The MAESTRO Threat Analyzer is an AI-powered tool designed to help developers and security professionals identify and mitigate potential threats in multi-agent systems. It uses large language models via Genkit—including Google Gemini, OpenAI, and locally hosted Ollama models—together with the MAESTRO threat modeling framework to analyze system architectures and generate detailed security insights.
 
 This tool is built for educational and demonstrative purposes to showcase how threat modeling can be applied to complex, agentic AI systems.
 
 ## Reference
 
-This tool is based on the **MAESTRO (Multi-Agent Environment, Security, Threat, Risk, and Outcome)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
+This tool is based on the **MAESTRO (Malicious Agent Evasion, Strategy, and Threat Response Operations)** framework for agentic AI threat modeling, as detailed in the Cloud Security Alliance (CSA) publication:
 
 - **Paper**: [Agentic AI Threat Modeling Framework: MAESTRO](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)
 
@@ -14,13 +14,13 @@ We highly recommend reading the paper to understand the seven-layer architecture
 
 ## Features
 
--   **Detailed Architecture Input**: Provides a textarea for users to describe their system architecture, which is used by the AI for analysis.
--   **Use-Case Presets**: Comes with pre-populated use-case descriptions that detail interactions between agents using protocols like **A2A (Agent-to-Agent)** and **MCP (Model Context Protocol)**.
--   **AI-Powered Threat Identification**: For each of the seven MAESTRO layers, the tool uses a Genkit flow to call the Gemini AI model. The AI identifies two categories of threats:
-    1.  **Traditional Threats**: Inherent security risks for the layer's technology, independent of agentic factors.
-    2.  **Agentic Threats**: Novel threats or exacerbations of existing ones arising from factors like Non-Determinism, Autonomy, and No Trust Boundary.
--   **AI-Driven Mitigation Generation**: For each identified threat, the AI recommends specific mitigation strategies, including the reasoning behind them and any potential caveats.
--   **Real-Time Analysis & Logging**: The UI streams the analysis progress in real-time, providing detailed logs as the AI works through each of the seven MAESTRO layers.
+- **Detailed Architecture Input**: Provides a textarea for users to describe their system architecture, which is used by the AI for analysis.
+- **Use-Case Presets**: Comes with pre-populated use-case descriptions that detail interactions between agents using protocols like **A2A (Agent-to-Agent)** and **MCP (Model Context Protocol)**.
+- **AI-Powered Threat Identification**: For each of the seven MAESTRO layers, the tool uses a Genkit flow to call the configured LLM provider. The AI identifies two categories of threats:
+  - **Traditional Threats**: Inherent security risks for the layer's technology, independent of agentic factors.
+  - **Agentic Threats**: Novel threats or exacerbations of existing ones arising from factors like Non-Determinism, Autonomy, and No Trust Boundary.
+- **AI-Driven Mitigation Generation**: For each identified threat, the AI recommends specific mitigation strategies, including the reasoning behind them and any potential caveats.
+- **Real-Time Analysis & Logging**: The UI streams the analysis progress in real-time, providing detailed logs as the AI works through each of the seven MAESTRO layers.
 
 ## Getting Started
 
@@ -28,46 +28,64 @@ Follow these instructions to set up and run the project locally.
 
 ### Prerequisites
 
--   Node.js (v18 or later)
--   npm or yarn
+- Node.js (v18 or later)
+- npm or yarn
 
 ### Installation & Setup
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
+1. **Clone the repository:**
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
-3.  **Set up environment variables:**
-    -   Create a `.env` file in the root of the project.
-    -   Add your Google Gemini API key to the file:
-        ```
-        GEMINI_API_KEY=your_api_key_here
-        ```
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables:**
+   - Create a `.env` file in the root of the project.
+   - Choose which provider to use by setting `LLM_PROVIDER` to `google`, `openai`, or `ollama` (defaults to `google`).
+   - Provide the appropriate credentials for the selected provider:
+
+     ```markdown
+     # For Google Gemini
+     GEMINI_API_KEY=your_api_key_here
+
+     # For OpenAI
+     OPENAI_API_KEY=your_api_key_here
+        
+     # For Ollama
+     OLLAMA_SERVER_ADDRESS=http://localhost:11434
+
+     # Optional: override the default model
+     LLM_MODEL=model-name
+     ```
 
 ### Running the Application
 
 This project requires two processes to run concurrently: the Next.js frontend and the Genkit AI flows.
 
-1.  **Run the Next.js development server:**
-    Open a terminal and run:
-    ```bash
-    npm run dev
-    ```
-    This will start the web application, typically available at `http://localhost:9002`.
+1. **Run the Next.js development server:**
+   Open a terminal and run:
 
-2.  **Run the Genkit flows:**
-    Open a second terminal and run:
-    ```bash
-    npm run genkit:watch
-    ```
-    This command starts the Genkit development server and automatically reloads it when you make changes to your AI flows.
+   ```bash
+   npm run dev
+   ```
+
+   This will start the web application, typically available at `http://localhost:9002`.
+
+2. **Run the Genkit flows:**
+   Open a second terminal and run:
+
+   ```bash
+   npm run genkit:watch
+   ```
+
+   This command starts the Genkit development server and automatically reloads it when you make changes to your AI flows.
 
 You can now open your browser and start using the MAESTRO Threat Analyzer.
 
@@ -75,10 +93,10 @@ You can now open your browser and start using the MAESTRO Threat Analyzer.
 
 We welcome contributions! If you'd like to help improve the tool, please follow these steps:
 
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with clear, descriptive messages.
-4.  Push your branch and open a pull request.
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with clear, descriptive messages.
+4. Push your branch and open a pull request.
 
 Please ensure your code follows the existing style and that you've tested your changes.
 
@@ -92,7 +110,7 @@ This tool is intended for **educational and demonstration purposes only**. The t
 
 This project is licensed under the MIT License.
 
-```
+```txt
 MIT License
 
 Copyright (c) 2024 Distributed Apps
@@ -118,6 +136,4 @@ SOFTWARE.
 
 ## Contact
 
-For questions, feedback, or inquiries, please contact us at **info@distributedapps.ai**.
-
-    
+For questions, feedback, or inquiries, please contact us at **[info@distributedapps.ai](mailto:info@distributedapps.ai)**.
