@@ -46,10 +46,10 @@
     "firebase": "^11.9.1",
     "genkit": "^1.19.2",
     "genkitx-ollama": "^1.19.2",
-    "jspdf": "^2.5.1",
+    "jspdf": "3.0.3",
     "lucide-react": "^0.475.0",
     "mermaid": "^10.9.1",
-    "next": "15.3.3",
+    "next": "15.4.7",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -61,6 +61,16 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
+  "overrides": {
+    "dompurify": "3.2.4"
+  },
+  "resolutions": {
+    "dompurify": "3.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "jspdf": "3.0.3",
   "devDependencies": {
     "@types/jspdf": "^2.0.0",
     "@types/node": "^20.19.13",
