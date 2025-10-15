@@ -89,6 +89,46 @@ This project requires two processes to run concurrently: the Next.js frontend an
 
 You can now open your browser and start using the MAESTRO Threat Analyzer.
 
+### Running in Docker (development)
+
+There is a `Dockerfile` included at the project root that is set up for development. It installs dependencies, starts the Genkit flows in the background, and runs the Next.js dev server in the foreground. The image exposes port `9002`.
+
+Build the image from the repository root (Windows cmd example):
+
+```bat
+docker build -t maestro:latest .
+```
+
+Run the container and map port 9002 to the host (use `--env-file .env` to pass environment variables from a `.env` file):
+
+```bat
+docker run --rm -p 9002:9002 --env-file .env maestro:latest
+```
+
+Run detached and give the container a name (so you can check logs or stop it later):
+
+```bat
+docker run -d --name maestro -p 9002:9002 --env-file .env maestro:latest
+```
+
+Pass individual environment variables directly from the command line:
+
+```bat
+docker run --rm -p 9002:9002 -e LLM_PROVIDER=openai -e OPENAI_API_KEY=your_api_key maestro:latest
+```
+
+View container logs (useful to watch Genkit and Next output):
+
+```bat
+docker logs -f maestro
+```
+
+Notes:
+
+- The `Dockerfile` sets a default `LLM_PROVIDER="ollama"`. If you use Ollama, ensure the Ollama server is reachable from the container (e.g., running on the host at `http://host.docker.internal:11434` or accessible by network).
+- For Google Gemini or OpenAI, pass the appropriate API keys via `--env-file` or `-e` flags (for example `OPENAI_API_KEY` or `GEMINI_API_KEY`).
+- The included `Dockerfile` runs the development servers (Genkit and Next dev). For production deployments you should create a production Dockerfile or build the Next.js app with `npm run build` and serve the optimized output (for example with `next start` or a production web server).
+
 ## How to Contribute
 
 We welcome contributions! If you'd like to help improve the tool, please follow these steps:
