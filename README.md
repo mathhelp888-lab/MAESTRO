@@ -1,5 +1,7 @@
 # MAESTRO Threat Analyzer
 
+> **Official Repository**: This is the official Cloud Security Alliance repository for the MAESTRO Threat Analyzer.
+
 The MAESTRO Threat Analyzer is an AI-powered tool designed to help developers and security professionals identify and mitigate potential threats in multi-agent systems. It uses large language models via Genkit—including Google Gemini, OpenAI, and locally hosted Ollama models—together with the MAESTRO threat modeling framework to analyze system architectures and generate detailed security insights.
 
 This tool is built for educational and demonstrative purposes to showcase how threat modeling can be applied to complex, agentic AI systems.
@@ -36,7 +38,7 @@ Follow these instructions to set up and run the project locally.
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/mathhelp888-lab/MAESTRO.git
+   git clone https://github.com/CloudSecurityAlliance/MAESTRO.git
    cd MAESTRO
    ```
 
