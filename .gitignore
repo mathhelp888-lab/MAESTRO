@@ -43,3 +43,27 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+# AI Development Tools (local development only)
+# BMAD Core Framework
+.bmad-core/
+AGENTS.md
+
+# Serena Agent System
+.serena/
+
+# Claude Code Assistant Files
+.claude/
+CLAUDE.md
+
+# Gemini AI Coder Agent Files
+.gemini/
+
+# GitHub AI Tools and Templates
+.github/
+
+# Project Planning Documents (local development only)
+# Keep docs/blueprint.md in git (app specifications)
+# Exclude project management documents
+docs/prd/
+docs/stories/
+docs/architecture/
